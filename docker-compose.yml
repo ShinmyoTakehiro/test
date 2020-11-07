@@ -1,0 +1,38 @@
+version: "3"
+services:
+    wordpress:
+        image: wordpress:latest
+        ports:
+            - "8082:80"
+        depends_on:
+            - db
+        environment:
+            WORDPRESS_DB_HOST: "db:3306"
+        env_file: .env
+        volumes:
+            - ./themes/two_face:/var/www/html/wp-content/themes/two_face
+    db:
+        image: mysql:latest
+        env_file: .env
+        volumes:
+            - db-data:/var/lib/mysql
+
+    #phpmyadminでsqlのGUI作成      
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOSTS=mysql_host
+            # - PMA_USER=${DB_USER}
+            # - PMA_PASSWORD=${DB_PASS}
+        links:
+            - db
+        ports:
+            - 3306:80
+    # volumes:
+    #   - ./docker/phpmyadmin/phpmyadmin-misc.ini:/usr/local/etc/php/conf.d/phpmyadmin-misc.ini
+
+# databaseのように永続的なストレージが欲しい場合に必要な設定
+# https://docs.docker.com/compose/compose-file/#volume-configuration-reference
+volumes:
+    db-data:
